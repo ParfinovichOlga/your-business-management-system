@@ -22,9 +22,9 @@ class TaskSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 
-# class DetailSerializer(TaskSerializer):
+class TaskDetailSerializer(TaskSerializer):
     """Serializer for task detail view."""
-    # comments = CommentSerializer(many=True, required=False)
+    comments = CommentSerializer(many=True, required=False)
 
-    # class Meta(TaskSerializer.Meta):
-    # fields = TaskSerializer.Meta.fields + [comments]
+    class Meta(TaskSerializer.Meta):
+        fields = TaskSerializer.Meta.fields

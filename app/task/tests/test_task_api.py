@@ -6,8 +6,8 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from task.models import Task
-from task.serializers import TaskSerializer
+from task.models import Task, Comment
+from task.serializers import TaskSerializer, TaskDetailSerializer
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -117,7 +117,7 @@ class PrivateUserTaskAPITests(TestCase):
         task = create_task(assign_to=self.user)
         url = detail_url(task.id)
         res = self.client.get(url)
-        serializer = TaskSerializer(task)
+        serializer = TaskDetailSerializer(task)
         self.assertEqual(res.data, serializer.data)
 
     def test_partial_update(self):
@@ -130,3 +130,51 @@ class PrivateUserTaskAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         task.refresh_from_db()
         self.assertEqual(task.status, payload['status'])
+
+    def test_full_update(self):
+        """Test full update of recipe."""
+        task = create_task(
+                description='Sample task description.',
+                deadline='2025-06-01',
+                status='opened',
+        )
+        payload = {
+            'description': 'New task description',
+            'deadline': '2025-07-01',
+            'status': 'in_progress',
+        }
+        url = detail_url(task.id)
+        res = self.client.put(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        task.refresh_from_db()
+        for k, v in payload.items():
+            if k == 'deadline':
+                self.assertEqual(getattr(task, k),
+                                 datetime.strptime(v, '%Y-%m-%d').date())
+            else:
+                self.assertEqual(getattr(task, k), v)
+
+    def test_delete_task(self):
+        """Test deleting a recipe successful."""
+        task = create_task()
+
+        url = detail_url(task.id)
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Task.objects.filter(id=task.id).exists())
+
+    def test_comments_limited_to_task(self):
+        """Test list of comments is limited to task."""
+        task1 = create_task()
+        task2 = create_task()
+        comment1 = Comment.objects.create(
+            user=self.user, task=task1, text='Comment for task1')
+        Comment.objects.create(
+            user=self.user, task=task2, text='Comment for task2')
+        res = self.client.get(detail_url(task1.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['comments']), 1)
+        self.assertEqual(res.data['comments'][0]['id'], comment1.id)
+        self.assertEqual(res.data['comments'][0]['text'], 'Comment for task1')
