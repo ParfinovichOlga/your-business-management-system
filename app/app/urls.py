@@ -29,5 +29,6 @@ urlpatterns = [
         name='api-docs'
         ),
     path('api/user/', include('user.urls')),
-    path('api/task/', include('task.urls'))
+    path('api/task/', include('task.urls')),
+    path('api/teams/', include('team.urls'))
 ]

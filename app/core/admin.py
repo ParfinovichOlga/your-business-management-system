@@ -6,6 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 from user.models import User
 from task.models import Task, Comment
+from team.models import Team
 
 
 class UserAdmin(BaseUserAdmin):
@@ -46,6 +47,16 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ('description',)
+    list_filter = ('status', 'deadline')
+
+
+class TeamAdmin(admin.ModelAdmin):
+    list_display = ('name', 'manager')
+
+
 admin.site.register(User, UserAdmin)
-admin.site.register(Task)
+admin.site.register(Task, TaskAdmin)
 admin.site.register(Comment)
+admin.site.register(Team, TeamAdmin)

@@ -92,3 +92,18 @@ class PrivateCommentsAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         com = Comment.objects.filter(id=comment.id)
         self.assertFalse(com.exists())
+
+    def test_delete_update_other_user_comment(self):
+        """Test deleting/updating other user comment."""
+        task = create_task()
+        other_user = get_user_model().objects.create_user(
+            email='other@example.com',
+            password='test123'
+        )
+        comment = Comment.objects.create(
+            user=other_user, task=task, text='first comment')
+        res1 = self.client.delete(detail_url(comment.id))
+        self.assertEqual(res1.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Comment.objects.filter(id=comment.id).exists())
+        res2 = self.client.patch(detail_url(comment.id), {'text': ''})
+        self.assertEqual(res2.status_code, status.HTTP_403_FORBIDDEN)

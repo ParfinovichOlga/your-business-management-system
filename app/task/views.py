@@ -8,7 +8,7 @@ from task.serializers import (
     TaskDetailSerializer,
     CommentSerializer
 )
-from task.permissions import IsManagerOrReadOnly
+from core.permissions import IsManagerOrReadOnly, IsOwnerOrReadOnly
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -50,5 +50,5 @@ class CommentAPIView(viewsets.ModelViewSet):
     """View for managing comments APIs."""
     serializer_class = CommentSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     queryset = Comment.objects.all().order_by('-id')

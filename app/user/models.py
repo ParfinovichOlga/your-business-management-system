@@ -37,6 +37,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_manager = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    team = models.ForeignKey(
+        'team.Team', on_delete=models.SET_NULL,
+        null=True, related_name='members'
+        )
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+    def __str__(self):
+        return self.name
