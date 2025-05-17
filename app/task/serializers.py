@@ -15,7 +15,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    """Serializer for the task object."""
+    """Serializer for the tasks."""
     class Meta:
         model = Task
         fields = '__all__'
@@ -23,7 +23,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class TaskDetailSerializer(TaskSerializer):
-    """Serializer for task detail view."""
+    """Serializer for task detail."""
     comments = CommentSerializer(many=True, required=False)
 
     class Meta(TaskSerializer.Meta):

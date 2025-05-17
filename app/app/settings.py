@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework_simplejwt',
     'task',
-    'team'
+    'team',
+    'evaluation'
 ]
 
 MIDDLEWARE = [

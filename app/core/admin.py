@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from user.models import User
 from task.models import Task, Comment
 from team.models import Team
+from evaluation.models import Evaluation
 
 
 class UserAdmin(BaseUserAdmin):
@@ -60,3 +61,4 @@ admin.site.register(User, UserAdmin)
 admin.site.register(Task, TaskAdmin)
 admin.site.register(Comment)
 admin.site.register(Team, TeamAdmin)
+admin.site.register(Evaluation)

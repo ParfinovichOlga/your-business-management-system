@@ -82,7 +82,7 @@ class PrivateCommentsAPITests(TestCase):
         self.assertEqual(comment.text, payload['text'])
 
     def test_delete_comment(self):
-        """Test deleting an ingredient."""
+        """Test deleting a comment."""
         task = create_task()
         comment = Comment.objects.create(
             user=self.user, task=task, text='first comment')
