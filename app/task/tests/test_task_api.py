@@ -48,7 +48,7 @@ class PublicTaskAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def auth_required(self):
+    def test_auth_required(self):
         res1 = self.client.post(CREATE_TASK_URL, get_sample_task_payload())
         res2 = self.client.get(TASK_URL)
         self.assertEqual(res1.status_code, status.HTTP_401_UNAUTHORIZED)

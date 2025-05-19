@@ -8,6 +8,7 @@ from user.models import User
 from task.models import Task, Comment
 from team.models import Team
 from evaluation.models import Evaluation
+from meeting.models import Meeting
 
 
 class UserAdmin(BaseUserAdmin):
@@ -62,3 +63,4 @@ admin.site.register(Task, TaskAdmin)
 admin.site.register(Comment)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Evaluation)
+admin.site.register(Meeting)

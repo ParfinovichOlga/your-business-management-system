@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'task',
     'team',
-    'evaluation'
+    'evaluation',
+    'meeting'
 ]
 
 MIDDLEWARE = [

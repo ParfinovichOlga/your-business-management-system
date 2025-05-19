@@ -13,7 +13,7 @@ class Evaluation(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        related_name='evaluationss',
+        related_name='evaluations',
         null=True
     )
     grade = models.IntegerField(

@@ -19,7 +19,11 @@ class CreateTaskAPIView(generics.CreateAPIView):
     """Create new task."""
     serializer_class = TaskSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsManagerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsManagerOrReadOnly]
+
+    def perform_create(self, serializer):
+        """Create a new task."""
+        serializer.save(user=self.request.user)
 
 
 class ManageTasksAPIView(mixins.DestroyModelMixin,

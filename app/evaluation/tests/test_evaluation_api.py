@@ -20,7 +20,7 @@ EVALUATION_URL = reverse('evaluation:evaluation-list')
 
 
 def detail_url(evaluation_id):
-    """Create and return a task detail URL."""
+    """Create and return an evaluation detail URL."""
     return reverse('evaluation:evaluation-detail', args=[evaluation_id])
 
 
@@ -35,17 +35,17 @@ def create_task(**params):
     return task
 
 
-class PublicTaskAPITests(TestCase):
+class PublicEvaluationAPITests(TestCase):
     """Test unauthenticated API requests."""
     def setUp(self):
         self.client = APIClient()
 
-    def auth_required(self):
+    def test_auth_required(self):
         res = self.client.get(EVALUATION_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class PrivateManagerTaskAPITests(TestCase):
+class PrivateManagerEvaluationAPITests(TestCase):
     """Test authenticated manager API requests."""
     def setUp(self):
         self.client = APIClient()
@@ -101,6 +101,31 @@ class PrivateManagerTaskAPITests(TestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['grade'], ev1.grade)
 
+    def test_empty_evaluation_list(self):
+        """Test manager has no evaluations."""
+        res = self.client.get(EVALUATION_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, [])
+
+    def test_update_evaluation_by_manager(self):
+        """Test updating an evaluation."""
+        task = create_task(status='done')
+        ev = Evaluation.objects.create(
+            user=self.manager, grade=5, task_id=task)
+        payload = {'grade': 3, 'task_id': task.id}
+        res = self.client.patch(detail_url(ev.id), payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['grade'], payload['grade'])
+
+    def test_get_evaluation_details(self):
+        """Test retrieving evaluations details."""
+        task = create_task(status='done')
+        ev = Evaluation.objects.create(
+            user=self.manager, grade=5, task_id=task)
+        res = self.client.get(detail_url(ev.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['id'], ev.id)
+
     def test_delete_evaluation(self):
         """Test deleting an evaluation."""
         task = create_task(status='done')
@@ -112,6 +137,16 @@ class PrivateManagerTaskAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         com = Evaluation.objects.filter(id=ev.id)
         self.assertFalse(com.exists())
+
+    def test_delete_other_user_evaluation(self):
+        """Test deleting other user evaluation."""
+        task = create_task(status='done')
+
+        ev = Evaluation.objects.create(
+            user=self.manager2, grade=4, task_id=task)
+        res = self.client.delete(detail_url(ev.id))
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(Evaluation.objects.filter(id=ev.id).exists())
 
 
 class EvaluetionPrivateAPITest(TestCase):
@@ -193,3 +228,18 @@ class EvaluetionPrivateAPITest(TestCase):
         payload = {'grade': 5, 'task_id': task.id}
         res = self.client.post(EVALUATION_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_evaluation_details(self):
+        """Test retrieving evaluations details."""
+        manager = get_user_model().objects.create_user(
+            email='manager@example.com',
+            password='testpass123',
+            is_manager=True
+        )
+        task = create_task(status='done', assign_to=self.user)
+        ev = Evaluation.objects.create(
+            user=manager, grade=5, task_id=task)
+        serializer = EvaluationSerializer(ev)
+        res = self.client.get(detail_url(ev.id))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)

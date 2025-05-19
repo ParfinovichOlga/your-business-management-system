@@ -9,7 +9,7 @@ from evaluation.models import Evaluation
 
 
 class ModelEvaluationTest(TestCase):
-    """Test task model."""
+    """Test evaluation model."""
     def test_create_evaluation(self):
         """Test creating an evaluation is successful."""
         user = get_user_model().objects.create_user(

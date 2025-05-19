@@ -12,7 +12,11 @@ class Task(models.Model):
     task_status = (
         ('opened', 'opened'), ('in_progress', 'in progress'), ('done', 'done')
         )
-
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, related_name='created_tasks'
+        )
     description = models.TextField()
     status = models.CharField(
         max_length=15, choices=task_status, default='opened'
