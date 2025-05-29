@@ -2,24 +2,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.views.generic import TemplateView
-
-
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Subquery, Avg
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .services import (
-    appoint_manager, unpin_manager,
     get_context_for_starting_page, save_user,
-    update_profile, save_team
+    update_profile, save_team, update_team, have_meeting,
+    select_user_evaluations, save_meeting
 )
 from .forms import TeamForm, MeetingForm, TaskForm, CommentForm, EvaluationForm
 from team.models import Team
 from meeting.models import Meeting
 from task.models import Task
-from evaluation.models import Evaluation
 
 
 def starting_page(request):
@@ -98,6 +94,7 @@ def delete_profile(request):
 
 @login_required
 def create_team(request):
+    """Create a team."""
     if not request.user.is_superuser:
         return redirect('home')
     form = TeamForm(request.POST)
@@ -117,6 +114,7 @@ def create_team(request):
 
 @login_required
 def team_detail(request, id):
+    """View for team details."""
     if not request.user.is_superuser:
         return redirect('home')
     try:
@@ -130,14 +128,12 @@ def team_detail(request, id):
         if request.method == 'POST':
             form = TeamForm(request.POST)
             if form.is_valid():
-                if team.manager != form.cleaned_data['manager']:
-                    unpin_manager(team.manager)
-                team.members.set([])
-                team.name = form.cleaned_data['name']
-                team.manager = form.cleaned_data['manager']
-                team.members.set(form.cleaned_data['members'])
-                team.save()
-                appoint_manager(team, form.cleaned_data['manager'])
+                data = {
+                    'manager': form.cleaned_data['manager'],
+                    'name': form.cleaned_data['name'],
+                    'members': form.cleaned_data['members']
+                }
+                update_team(team, data)
                 return redirect('home')
 
         return render(
@@ -150,6 +146,7 @@ def team_detail(request, id):
 
 @login_required
 def delete_team(request, id):
+    """Delete team."""
     if not request.user.is_superuser:
         return redirect('home')
     team = get_object_or_404(Team, id=int(id))
@@ -158,6 +155,7 @@ def delete_team(request, id):
 
 
 class MeetingView(LoginRequiredMixin, View):
+    """View for meetings."""
     def get(self, request):
         form = MeetingForm()
         context = {
@@ -169,32 +167,22 @@ class MeetingView(LoginRequiredMixin, View):
     def post(self, request):
         form = MeetingForm(request.POST)
         if form.is_valid():
-            try:
-                meetings = request.user.meetings.all()
-                overlay = next(
-                    m for m in meetings if abs(
-                        (
-                            m.date - form.cleaned_data['date']
-                        ).total_seconds()) < 3600
-                        )
-
-            except StopIteration:
+            meetings = have_meeting(request.user, form.cleaned_data['date'])
+            if meetings.get('can_create'):
                 meeting = form.save(commit=False)
-                meeting.user = request.user
-                meeting.save()
-                meeting.participants.set(form.cleaned_data['participants'])
-                meeting.participants.add(request.user)
+                save_meeting(
+                    meeting, request.user,
+                    form.cleaned_data['participants'])
                 return redirect('home')
             else:
-                messages.error(
-                request, f"You have a meeting  {overlay.title} at {overlay.date}"
-                )
+                messages.error(request, meetings['message'])
 
         return render(request, 'meeting.html', {'form': form})
 
 
 @login_required
 def delete_meeting(request, id):
+    """Delete meeting."""
     meeting_to_delete = get_object_or_404(Meeting, id=id)
     if request.user == meeting_to_delete.user:
         meeting_to_delete.delete()
@@ -203,6 +191,7 @@ def delete_meeting(request, id):
 
 @login_required
 def create_task(request):
+    """Create task."""
     if request.method == 'POST' and request.user.is_manager:
         form = TaskForm(request.POST)
         if form.is_valid:
@@ -214,6 +203,7 @@ def create_task(request):
 
 @login_required
 def task_detail(request, id):
+    """View for task detail."""
     evaluation_form = EvaluationForm()
     comment_form = CommentForm()
     task = get_object_or_404(Task, id=int(id))
@@ -238,6 +228,7 @@ def task_detail(request, id):
 
 @login_required
 def update_task(request, id):
+    """Update task."""
     if request.user.is_manager:
         task = get_object_or_404(Task, id=int(id))
         inital = {
@@ -263,6 +254,7 @@ def update_task(request, id):
 
 @login_required
 def delete_task(request, id):
+    """Delete task."""
     task = get_object_or_404(Task, id=id)
     if request.user.is_manager:
         task.delete()
@@ -276,6 +268,7 @@ def delete_task(request, id):
 
 @login_required
 def evaluate_task(request, id):
+    """Set task evaluation."""
     task = get_object_or_404(Task, id=id)
     if request.method == 'POST':
         form = EvaluationForm(request.POST)
@@ -295,6 +288,7 @@ def evaluate_task(request, id):
 
 @login_required
 def take_task(request, id):
+    """Assign task."""
     task = get_object_or_404(Task, id=id)
     task.assign_to = request.user
     task.status = 'in progress'
@@ -304,6 +298,7 @@ def take_task(request, id):
 
 @login_required
 def mark_task_as_done(request, id):
+    """Change task status to done."""
     task = get_object_or_404(Task, id=id)
     if task.assign_to == request.user:
         task.status = 'done'
@@ -312,16 +307,10 @@ def mark_task_as_done(request, id):
 
 
 class EvaluationView(LoginRequiredMixin, TemplateView):
+    """View for user's evaluations."""
     template_name = 'evaluations.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['evaluations'] = Evaluation.objects.all().filter(
-            task_id__in=Subquery(
-                Task.objects.filter(
-                    assign_to=self.request.user, status='done'
-                    ).values('pk'))
-            ).select_related('task_id').order_by('-id')
-        context['avg_evaluation'] = context['evaluations'].aggregate(
-            avg_grade=Avg('grade')).get('avg_grade')
+        context.update(** select_user_evaluations(self.request.user))
         return context

@@ -9,7 +9,8 @@ from core.services import (
     select_tasks_for_month, select_tasks_for_today,
     select_all_manager_tasks, sellect_all_available_employee_tasks,
     select_all_emploee_tasks_todo, get_context_for_starting_page,
-    save_user, update_profile
+    save_user, update_profile, save_team, update_team, have_meeting,
+    save_meeting, select_user_evaluations
 )
 from user.models import User
 from meeting.models import Meeting
@@ -35,6 +36,119 @@ class TeamsTests(TestCase):
         """Test get empty list of teams"""
         res = select_all_teams()
         self.assertEqual(len(res), 0)
+
+    def test_create_team(self):
+        """Test creating team."""
+        user1 = get_user_model().objects.create_user(
+            email='user1@example.com',
+            password='testpass123'
+        )
+        user2 = get_user_model().objects.create_user(
+            email='user2@example.com',
+            password='testpass123'
+        )
+        user3 = get_user_model().objects.create_user(
+            email='user3@example.com',
+            password='testpass123'
+        )
+        data = {
+            'name': 'Test team',
+            'manager': user1,
+            'members': [user2, user3]
+        }
+        save_team(data)
+        team = Team.objects.get(name=data['name'])
+        self.assertEqual(team.name, data['name'])
+        self.assertEqual(user1.team, team)
+        self.assertEqual(user2.team, team)
+        self.assertEqual(user2.team, team)
+        self.assertTrue(user1.is_manager)
+        self.assertEqual(len(team.members.all()), 3)
+
+    def test_creating_team_without_members(self):
+        data = {
+            'name': 'Test team',
+        }
+        save_team(data)
+        self.assertTrue(
+            Team.objects.filter(name=data['name']).exists())
+
+    def test_update_team(self):
+        """Test updating team."""
+        team = Team.objects.create(name='Test team')
+        user1 = get_user_model().objects.create_user(
+            email='user1@example.com',
+            password='testpass123'
+        )
+        user2 = get_user_model().objects.create_user(
+            email='user2@example.com',
+            password='testpass123'
+        )
+        data = {
+            'name': 'New',
+            'manager': user1,
+            'members': [user2]
+        }
+        update_team(team, data)
+        self.assertEqual(team.name, data['name'])
+        self.assertEqual(team.manager, data['manager'])
+        self.assertEqual(len(team.members.all()), 2)
+
+    def test_update_team_manager(self):
+        """Test updating team manager."""
+        user1 = get_user_model().objects.create_user(
+            email='user1@example.com',
+            password='testpass123',
+            is_manager=True
+        )
+        team = Team.objects.create(
+            name='Test team',
+            manager=user1
+        )
+        user2 = get_user_model().objects.create_user(
+            email='user2@example.com',
+            password='testpass123'
+        )
+        data = {
+            'name': 'Test team',
+            'manager': user2,
+            'members': [user1]
+        }
+        update_team(team, data)
+        self.assertEqual(team.manager, user2)
+        self.assertTrue(user2.is_manager)
+        self.assertFalse(user1.is_manager)
+        self.assertEqual(len(team.members.all()), 2)
+
+    def test_set_team_manager_to_none(self):
+        """Test updating team."""
+        user1 = get_user_model().objects.create_user(
+            email='user1@example.com',
+            password='testpass123',
+            is_manager=True
+        )
+        user2 = get_user_model().objects.create_user(
+            email='user2@example.com',
+            password='testpass123'
+        )
+        user3 = get_user_model().objects.create_user(
+            email='user3@example.com',
+            password='testpass123'
+        )
+        team = Team.objects.create(
+            name='Test team',
+            manager=user1
+        )
+        team.members.set([user2, user3])
+        data = {
+            'name': 'Test team',
+            'manager': None,
+            'members': [user2]
+        }
+        update_team(team, data)
+        self.assertEqual(len(team.members.all()), 1)
+        self.assertEqual(team.members.all()[0], user2)
+        self.assertEqual(team.manager, None)
 
 
 class MeetingTests(TestCase):
@@ -132,6 +246,30 @@ class MeetingTests(TestCase):
         self.assertEqual(len(res1), 1)
         res2 = select_meetings_for_month(self.other_user)
         self.assertEqual(len(res2), 1)
+
+    def test_have_meetings(self):
+        """Test user have no overlapping meetings"""
+        date = datetime(2025, 5, 31, 16, 30, tzinfo=pytz.UTC)
+        res = have_meeting(self.user, date)
+        self.assertTrue(res['can_create'])
+        meeting = Meeting.objects.create(
+            title='Example title 2',
+            date=datetime(2025, 5, 31, 17, 0, tzinfo=pytz.UTC)
+        )
+        meeting.participants.add(self.user)
+        res1 = have_meeting(self.user, date)
+        self.assertEqual(res1.get('can_create'), None)
+
+    def test_create_meeting(self):
+        """Test create meeting."""
+        m = Meeting.objects.create(
+            title='test',
+            date=datetime(2025, 5, 31, 17, 0, tzinfo=pytz.UTC))
+        save_meeting(m, self.user, [self.other_user])
+        meetings = Meeting.objects.all()
+        self.assertEqual(len(meetings), 1)
+        self.assertEqual(meetings[0].user, self.user)
+        self.assertEqual(len(meetings[0].participants.all()), 2)
 
 
 class TaskTests(TestCase):
@@ -410,3 +548,51 @@ class UserTests(TestCase):
         self.assertFalse(
             authenticate(email=user.email, password=data['password'])
             )
+
+
+class EvaluationTests(TestCase):
+    """Tests for evaluation."""
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email='user@example.com',
+            password='testpass123'
+        )
+        self.other_user = get_user_model().objects.create_user(
+            email='user2@example.com',
+            password='testpass123'
+        )
+
+    def test_select_user_evaluations(self):
+        """Test select user evaluations."""
+        task1 = Task.objects.create(
+            description='Task for other user',
+            deadline=datetime(2025, 5, 1, tzinfo=pytz.UTC),
+            status='done',
+            assign_to=self.user
+            )
+        task2 = Task.objects.create(
+            description='Task for other user',
+            deadline=datetime(2025, 5, 1, tzinfo=pytz.UTC),
+            status='done',
+            assign_to=self.user
+            )
+        Task.objects.create(
+            description='Task for other user',
+            deadline=datetime(2025, 5, 1, tzinfo=pytz.UTC),
+            status='in_progress',
+            assign_to=self.user
+            )
+        task3 = Task.objects.create(
+            description='Task for other user',
+            deadline=datetime(2025, 5, 1, tzinfo=pytz.UTC),
+            status='done',
+            assign_to=self.other_user
+            )
+        Evaluation.objects.create(grade=1, task_id=task1)
+        Evaluation.objects.create(grade=5, task_id=task2)
+        Evaluation.objects.create(grade=4, task_id=task3)
+        res = select_user_evaluations(self.user)
+        self.assertEqual(len(res['evaluations']), 2)
+        self.assertIn(task1.evaluation, res['evaluations'])
+        self.assertIn(task2.evaluation, res['evaluations'])
+        self.assertEqual(res['avg_evaluation'], 3.0)

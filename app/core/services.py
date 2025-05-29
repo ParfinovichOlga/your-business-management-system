@@ -1,9 +1,12 @@
 from django.utils import timezone
 from django.db.models.query import QuerySet
+from django.db.models import Subquery, Avg
 
 from team.models import Team
 from user.models import User
 from task.models import Task
+from meeting.models import Meeting
+from evaluation.models import Evaluation
 from user.serializers import UserSerializer
 from typing import Optional, Dict
 from .forms import TeamForm, TaskForm
@@ -78,6 +81,19 @@ def select_all_emploee_tasks_todo(user: User) -> QuerySet:
     return user.tasks.all().order_by('deadline')
 
 
+def select_user_evaluations(user: User):
+    """Select all user's evaluations."""
+    evaluations = Evaluation.objects.all().filter(
+            task_id__in=Subquery(
+                Task.objects.filter(
+                    assign_to=user, status='done'
+                    ).values('pk'))
+            ).select_related('task_id').order_by('-id')
+    avg_evaluation = evaluations.aggregate(
+            avg_grade=Avg('grade')).get('avg_grade')
+    return {'evaluations': evaluations, 'avg_evaluation': avg_evaluation}
+
+
 def get_context_for_starting_page(user: User) -> dict:
     """Get and return context for starting page"""
     context = {}
@@ -126,16 +142,8 @@ def update_profile(user: User, data: Dict):
     return {'user': user, 'message': 'You profile has apdated!'}
 
 
-def save_team(data: Dict):
-    """Save team to database."""
-    members = data.pop('members', [])
-    print(members)
-    team = Team.objects.create(**data)
-    appoint_manager(team, team.manager)
-    team.members.set(members)
-
-
 def appoint_manager(team: Team, manager: User):
+    """Change user status to manager."""
     if manager:
         manager.is_manager = True
         manager.team = team
@@ -143,7 +151,56 @@ def appoint_manager(team: Team, manager: User):
 
 
 def unpin_manager(manager: User):
+    """Set is manager false."""
     if manager:
         manager.is_manager = False
         manager.team = None
         manager.save()
+
+
+def save_team(data: Dict):
+    """Save team to database."""
+    members = data.pop('members', [])
+    team = Team.objects.create(**data)
+    team.members.set(members)
+    appoint_manager(team, team.manager)
+
+
+def update_team(team: Team, data: Dict):
+    """Update team."""
+    team_manager = team.manager
+    if team.manager != data['manager']:
+        unpin_manager(team_manager)
+
+    team.name = data['name']
+    team.manager = data['manager']
+    team.members.set(data['members'])
+    team.save()
+
+    appoint_manager(team, data['manager'])
+    return team
+
+
+def have_meeting(user: User, date) -> Dict:
+    """Check if user have a meeting at the same time."""
+    meetings = user.meetings.all()
+    try:
+        overlay = next(
+            m for m in meetings if abs((m.date - date).total_seconds()) < 3600
+            )
+
+    except StopIteration:
+        return {'can_create': True}
+    else:
+        message = f"You already have a meeting  {overlay.title}\
+              at {overlay.date.time().strftime('%H:%M')}\
+                {overlay.date.date().strftime('%d-%m-%Y')}"
+        return {'message': message}
+
+
+def save_meeting(meeting: Meeting, user: User, participants: QuerySet):
+    """Save meeting object."""
+    meeting.user = user
+    meeting.save()
+    meeting.participants.set(participants)
+    meeting.participants.add(user)

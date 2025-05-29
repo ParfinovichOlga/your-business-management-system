@@ -9,9 +9,11 @@ from formset.widgets import DateTimeTextbox, DateTextbox
 class TeamForm(forms.Form):
     name = forms.CharField(label='title', max_length=100)
     manager = forms.ModelChoiceField(
+        required=False,
         label='manager', queryset=User.objects.all()
         )
     members = forms.ModelMultipleChoiceField(
+        required=False,
         label='memebers', queryset=User.objects.all()
         )
 
