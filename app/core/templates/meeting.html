@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{%load static%}
+{%load crispy_forms_tags%}
+
+{% block content %}
+<div class="container">
+    {% if messages%}
+      {% for message in messages %}
+        <p style="color:blue"> {{message}} </p>
+      {% endfor%}
+    {% endif %}
+    <div class="row">
+      <div class="col-lg-6">
+        <h5 class="card-title">Set up new meeting</h5>
+        <form action="{% url 'set_up_meeting' %}" method="POST">
+            {% csrf_token %}
+            {{form|crispy}}
+            <button type="submit" style="background-color: rgb(249, 195, 133); color:white" class="btn btn-secondary btn-lg px-4 me-md-2 mt-2">Create</button>
+        </form>
+      </div>
+      <div class="col-lg-6">
+        <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
+          <div class="list-group">
+            <h5 class="card-title">Organized by me</h5>
+            {% for meeting in meetings %}
+            <label class="list-group-item d-flex gap-3 __web-inspector-hide-shortcut__">
+              <span class="pt-1 form-checked-content"> <strong>{{meeting.title}}</strong>
+                <small class="d-block text-body-secondary"> <svg class="bi me-1" width="1em" height="1em" role="img" aria-label="Schedule"><img src="{% static "images/alarm.svg"%}"></svg>
+                  {{meeting.date|date:"H:m d M Y"}}
+                </small>
+              </span>
+
+                <button type="submit" class="btn btn-light">
+                  <a href="{% url "cancel_meeting" meeting.id %}" style="text-decoration: none; color: black">
+                  Cancel
+                  </a>
+                </button>
+
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+{% endblock%}

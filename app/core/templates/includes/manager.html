@@ -1,0 +1,26 @@
+{%load crispy_forms_tags%}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3">
+            <h2> Create new task </h2>
+            <form action="{% url "create_task" %}" method="POST">
+                {% csrf_token %}
+                {{task_form|crispy}}
+                <button type="submit" style="background-color: rgb(249, 195, 133); color:white" class="btn btn-secondary btn-lg px-4 me-md-2 mt-2">Create</button>
+            </form>
+        </div>
+        <div class="col-lg-5">
+            <h2 class="mb-4"> All task </h2>
+            <ul class="list-group">
+                {% if tasks|length %}
+                    {% for task in tasks %}
+                        {% include "includes/task.html"%}
+                    {%endfor%}
+                {% endif %}
+            </ul>
+        </div>
+        <div class="col-lg-4">
+            {% include "includes/calendar.html" %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+{% load static %}
+<div class="row g-0 border rounded overflow-hidden flex-md-row shadow-sm h-md-250 position-relative">
+    <div class="col p-4 d-flex flex-column position-static">
+        <h4 class="mb-0">
+            <a href="{% url "task_detail" task.id%}">
+            {{task.description}}
+            </a>
+        </h4>
+        <p class="card-text mb-auto">status: {{task.status}}</p>
+        <p class="card-text mb-auto">deadline: {{task.deadline}}</p>
+        {% if task.assign_to %}
+            <p class="card-text mb-auto">assign_to: {{task.assign_to}}</p>
+        {% endif %}
+    </div>
+    <div class="col-auto d-none d-lg-block">
+        {% if not task.assign_to %}
+            <button type="button" class="btn btn-outline-success">
+                <a href="{% url 'take_task' task.id %}" style="text-decoration: none; color: green">
+                     Get
+                </a>
+            </button>
+        {% endif %}
+        {% if request.user.is_manager and task.status == "done" %}
+            <span class="badge text-bg-warning rounded-pill">Done</span>
+        {% endif %}
+        {% if request.user == task.assign_to %}
+            {%if task.status != 'done'%}
+            <button type="button" class="btn btn-outline-warning">
+                <a href="{% url 'task_done' task.id %}" style="text-decoration: none;">
+                     Done
+                </a>
+            </button>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>

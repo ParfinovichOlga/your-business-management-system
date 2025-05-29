@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{%load static%}
+{%load crispy_forms_tags%}
+
+{% block content %}
+<div class="container">
+  <div class="container">
+  <div class="card mb-3" style="max-width: 540px;">
+    <div class="row g-0">
+      <div class="col-md-6">
+      </div>
+      <div class="col-md-9">
+        {% if messages%}
+          {% for message in messages %}
+            <p style="color:blue"> {{message}} </p>
+          {% endfor%}
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">Task {{task.id}}</h5>
+          <p class="card-text"><b>Description: </b>{{task.description}}</p>
+          <p class="card-text"><b>Status: </b>{{task.status}}</p>
+          <p class="card-text"><b>Deadline: </b>{{task.deadline}}</p>
+          <p class="card-text"><small class="text-body-secondary"><b>Assigned to: </b>{{task.assign_to}}</small></p>
+          {% if request.user.is_manager %}
+          <div class="d-grid gap-2 d-md-block">
+            <button class="btn btn-outline-dark" type="button">
+              <a href="{% url "update_task" task.id %}" style="text-decoration: none; color: black">
+              Update
+              </a>
+            </button>
+            <button class="btn btn-outline-dark" type="button">
+              <a href="{% url "delete_task" task.id %}" style="text-decoration: none; color: black">
+              Delete
+              <a>
+            </button>
+          </div>
+          {% if not task.evaluation %}
+          <form action="{% url "evaluate_task" task.id %}" method="POST">
+            <div style="display:inline-block;">
+                {%csrf_token%}
+                {{ ev_form|crispy }}
+            </div>
+            <div style="display:inline-block;">
+             <button class="btn btn-outline-dark" type="submit">Evaluate</button>
+            </div>
+          </form>
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="list-group pt-3 pb-5">
+    {% for comment in task.comments.all%}
+      <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+
+        <span>{{comment.user}}:  </span>
+        <div class="d-flex gap-2 w-100 justify-content-between">
+          <div>
+            <h6 class="mb-0">{{comment.text|safe}}</h6>
+          </div>
+          <small class="opacity-50 text-nowrap">{{comment.date|date:"d M Y"}}</small>
+        </div>
+      </a>
+      {% endfor%}
+    </div>
+
+      <h2>Leave a comment</h2>
+
+      <div class="row">
+        <div class="col-12">
+          <form action="{% url "task_detail" task.id %}" method="POST">
+            {% csrf_token %}
+            {{comment_form|crispy}}
+            <button type="submit">Save</button>
+          </form>
+        </div>
+      </div>
+  </div>
+</div>
+{%endblock%}

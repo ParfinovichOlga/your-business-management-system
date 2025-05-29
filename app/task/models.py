@@ -4,7 +4,6 @@ Database Task model.
 
 from django.db import models
 from django.conf import settings
-from ckeditor.fields import RichTextField
 
 
 class Task(models.Model):
@@ -26,6 +25,7 @@ class Task(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='tasks'
         )
 
@@ -40,7 +40,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    text = RichTextField()
+    text = models.TextField()
     date = models.DateField(auto_now=True)
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE,

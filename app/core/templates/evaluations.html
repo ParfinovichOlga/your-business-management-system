@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{%load static%}
+{%load crispy_forms_tags%}
+
+{% block content %}
+<div class="container">
+    <h2 class="display-5 fw-bold text-body-emphasis mt-5 mb-5">Evaluations</h2>
+    {% if evaluations %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-11">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Description</th>
+                            <th>Deadline</th>
+                            <th>Manager</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in evaluations %}
+                        <tr>
+                            <td>{{e.task_id}}</td>
+                            <td>{{e.task_id.description}}</td>
+                            <td>{{e.task_id.deadline|date:"d-m-Y"}}</td>
+                            <td>{{e.user}}</td>
+                            <td>{{e.grade}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td>Average</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>{{avg_evaluation}}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else%}
+        <p class="lead mb-4">You have no evaluations yet.</p>
+    {% endif %}
+</div>
+{% endblock  %}

@@ -19,3 +19,7 @@ class MeetingAPIView(viewsets.ModelViewSet):
         if self.action == 'list':
             return self.request.user.meetings
         return self.queryset
+
+    def perform_create(self, serializer):
+        """Create a new meeting."""
+        serializer.save(user=self.request.user)

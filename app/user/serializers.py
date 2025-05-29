@@ -5,13 +5,19 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
+from task.serializers import TaskSerializer
+
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user object."""
+    tasks = TaskSerializer(many=True, required=False)
 
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'name', 'is_manager']
+        fields = [
+            'id', 'email', 'password', 'name', 'is_manager',
+            'is_superuser', 'tasks'
+            ]
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
 
     def create(self, validated_data):

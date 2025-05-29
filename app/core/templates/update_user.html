@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{%load static%}
+
+{% block content %}
+
+<header
+  class="masthead"
+  style="background-image: url('../static/assets/img/register-bg.jpg')"
+>
+  <div class="container position-relative px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="page-heading">
+          <h1>My profile</h1>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="mb-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <h2>Update profile</h2>
+          <span class="subheading">Change your name or password</span>
+        <form action="{% url "update_profile"%}" method='POST'>
+          {%csrf_token%}
+          {% if messages%}
+              {% for message in messages %}
+                <p style="color:blue"> {{message}} </p>
+              {% endfor%}
+            {% endif %}
+
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Name</label>
+            <input name="name" class="form-control" value="{{request.user.name}}">
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input name="password" type="password" class="form-control" id="exampleInputPassword1">
+          </div>
+
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <p class="mt-3">
+          <a href="{% url "delete_profile"%}"> Delete profile </a>
+        </p>
+
+    </div>
+
+    <div class="col-lg-6 px-5">
+      <h2>My Team</h2>
+      <div class="card" style="width: 30rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{request.user.team.name}}</h5>
+          <p class="card-text">Manager: {{request.user.team.manager}}  {{request.user.team.manager.email}} </p>
+          <p class="card-text">Members:  </p>
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for member in request.user.team.members.all%}
+          <li class="list-group-item">{{member.name}}, email: {{member.email}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+{%endblock%}

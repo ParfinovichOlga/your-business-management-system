@@ -8,6 +8,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
+
 CREATE_USER_URL = reverse('user:create')
 TOKEN_URL = reverse('user:token')
 ME_URL = reverse('user:me')
@@ -112,11 +113,8 @@ class PrivateUserApiTests(TestCase):
         """Test retrieving profile for logged in user."""
         res = self.client.get(ME_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data, {
-            'name': self.user.name,
-            'email': self.user.email,
-            'is_manager': self.user.is_manager
-        })
+        self.assertEqual(res.data['email'],  self.user.email)
+        self.assertEqual(res.data['name'],  self.user.name)
 
     def test_post_me_not_allowed(self):
         """Test POST is not allowed for the me endpoint."""

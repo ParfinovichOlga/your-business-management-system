@@ -16,6 +16,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     """Serializer for the tasks."""
+
     class Meta:
         model = Task
         fields = '__all__'

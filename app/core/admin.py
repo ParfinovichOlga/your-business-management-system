@@ -26,6 +26,7 @@ class UserAdmin(BaseUserAdmin):
                     'is_manager',
                     'is_superuser',
                     'is_active',
+                    'team'
                 )
             }
         ),
@@ -54,13 +55,9 @@ class TaskAdmin(admin.ModelAdmin):
     list_filter = ('status', 'deadline')
 
 
-class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'manager')
-
-
 admin.site.register(User, UserAdmin)
 admin.site.register(Task, TaskAdmin)
 admin.site.register(Comment)
-admin.site.register(Team, TeamAdmin)
+admin.site.register(Team)
 admin.site.register(Evaluation)
 admin.site.register(Meeting)

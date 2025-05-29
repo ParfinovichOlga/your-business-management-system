@@ -1,0 +1,75 @@
+{%load static%}
+
+<div class="container">
+    <div class="container">
+        <h2 class="mb-4"> Plan for today </h2>
+        <div class="row">
+            <div class="col-lg-6">
+                <h6> Tasks </h6>
+                {% if today_tasks|length%}
+                <ul>
+                    {% for t in today_tasks%}
+                        <li> {{t.date|date:"H:i"}} {{t.description}} </li>
+                    {%endfor%}
+                </ul>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <h6> Meetings </h6>
+                {% if today_meetings %}
+                <ul>
+                    {% for m in today_meetings%}
+                    <li> {{m.date|date:"H:i"}} {{m.title}} </li>
+                    {%endfor%}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="mb-4"> Plan for month </h2>
+        <div class="row">
+            <div class="col-lg-6">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Deadline</th>
+                            <th>Task</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if month_tasks|length %}
+                        {% for task in month_tasks%}
+                        <tr>
+                            <td>{{task.deadline|date:"d M Y"}}</td>
+                            <td>{{task.description}}</td>
+                        </tr>
+                        {% endfor%}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-6">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date </th>
+                            <th>Meeting</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if month_meetings|length %}
+                            {% for m in month_meetings%}
+                            <tr>
+                                <td>{{m.date|date:"d.m.Y H:i"}}</td>
+                                <td>{{m.title}}</td>
+                            </tr>
+                            {% endfor%}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
