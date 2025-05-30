@@ -10,7 +10,7 @@ from django.urls import reverse
 from .services import (
     get_context_for_starting_page, save_user,
     update_profile, save_team, update_team, have_meeting,
-    select_user_evaluations, save_meeting
+    select_user_evaluations, save_meeting, cancel_meeting
 )
 from .forms import TeamForm, MeetingForm, TaskForm, CommentForm, EvaluationForm
 from team.models import Team
@@ -185,7 +185,7 @@ def delete_meeting(request, id):
     """Delete meeting."""
     meeting_to_delete = get_object_or_404(Meeting, id=id)
     if request.user == meeting_to_delete.user:
-        meeting_to_delete.delete()
+        cancel_meeting(meeting_to_delete)
         return redirect('set_up_meeting')
 
 

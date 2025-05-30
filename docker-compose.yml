@@ -17,6 +17,8 @@ services:
       - DB_NAME=devdb
       - DB_USER=devuser
       - DB_PASS=changeme
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
     depends_on:
       - db
 
@@ -30,5 +32,26 @@ services:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
+
+
+  redis:
+    image: redis
+    restart: always
+    container_name: 'app_redis'
+    command: sh -c 'redis-server'
+    ports:
+      - '6379:6379'
+
+
+  celery:
+    build: .
+    container_name: 'app_celery'
+    command: sh -c 'celery -A app worker -l info'
+    volumes:
+      - .:/code
+    depends_on:
+      - app
+      - redis
+
 volumes:
   dev-db-data:

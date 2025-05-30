@@ -260,8 +260,10 @@ class MeetingTests(TestCase):
         res1 = have_meeting(self.user, date)
         self.assertEqual(res1.get('can_create'), None)
 
-    def test_create_meeting(self):
+    @patch('core.services.send_information_email')
+    def test_create_meeting(self, mock_send):
         """Test create meeting."""
+        mock_send.retutn_value = 'Messages were sent.'
         m = Meeting.objects.create(
             title='test',
             date=datetime(2025, 5, 31, 17, 0, tzinfo=pytz.UTC))

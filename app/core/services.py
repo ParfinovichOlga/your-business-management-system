@@ -10,6 +10,7 @@ from evaluation.models import Evaluation
 from user.serializers import UserSerializer
 from typing import Optional, Dict
 from .forms import TeamForm, TaskForm
+from core.tasks import send_information_email
 
 
 def select_all_teams() -> QuerySet:
@@ -204,3 +205,23 @@ def save_meeting(meeting: Meeting, user: User, participants: QuerySet):
     meeting.save()
     meeting.participants.set(participants)
     meeting.participants.add(user)
+    emails = [user.email for user in meeting.participants.all()]
+    message = f" \n You have an appointed meeting at \
+        {meeting.date.time().strftime('%H:%M')}\
+        {meeting.date.date().strftime('%d-%m-%Y')}.\n\
+        Subject: {meeting.title},\n\
+        Participants: {', '.join(emails)}"
+
+    send_information_email.delay(meeting.title, message, emails)
+
+
+def cancel_meeting(meeting: Meeting):
+    if meeting:
+        emails = [user.email for user in meeting.participants.all()]
+        message = f" \n Your meeting at \
+        {meeting.date.time().strftime('%H:%M')}\
+        {meeting.date.date().strftime('%d-%m-%Y')}\
+        was canceled."
+        title = f'{meeting.title} canceled'
+        meeting.delete()
+        send_information_email.delay(title, message, emails)
