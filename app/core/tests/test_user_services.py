@@ -3,7 +3,6 @@ Tests for the user services.
 """
 
 from django.test import TestCase
-from unittest.mock import patch
 from core.services import (
     get_context_for_starting_page,
     save_user, update_profile

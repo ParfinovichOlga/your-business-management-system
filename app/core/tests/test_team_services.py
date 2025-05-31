@@ -3,7 +3,6 @@ Tests for the team services.
 """
 
 from django.test import TestCase
-from unittest.mock import patch
 from core.services import (
     select_all_teams,
     save_team, update_team,

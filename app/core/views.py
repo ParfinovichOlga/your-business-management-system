@@ -161,7 +161,8 @@ class MeetingView(LoginRequiredMixin, View):
         form = MeetingForm()
         context = {
             'form': form,
-            'meetings': request.user.created_meetings.filter(date__gte=timezone.now()).all().order_by('date')
+            'meetings': request.user.created_meetings.filter(
+                date__gte=timezone.now()).all().order_by('date')
         }
         return render(request, 'meeting.html', context)
 
