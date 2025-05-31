@@ -19,7 +19,7 @@ App for management business system.
     - urls for frontend
     - admin.py for configuring Admin panel
     - tests for services.py
--Next modules contains models, views, urls, serializers, tests for API
+- Next modules contains models, views, urls, serializers, tests for API
     - evaluation
     - meetings
     - task
