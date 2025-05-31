@@ -1,6 +1,6 @@
 # your-business-management-system
 App for management business system.
-You can
+### You can
 - Create and manage your team: set manager and subordinates  (only admin user can do it).
 - Create, take, update, delete tasks change its status, take to your to-do list. Only manager user can create task.
 - Leave a comment to a task.
@@ -19,12 +19,12 @@ You can
     - urls for frontend
     - admin.py for configuring Admin panel
     - tests for services.py
-Next modules contains models, views, urls, serializers, tests for API
-- evaluation
-- meetings
-- task
-- team
-- user
+-Next modules contains models, views, urls, serializers, tests for API
+    - evaluation
+    - meetings
+    - task
+    - team
+    - user
 
 
 ## Installation
