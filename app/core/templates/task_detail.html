@@ -72,6 +72,7 @@
         <div class="col-12">
           <form action="{% url "task_detail" task.id %}" method="POST">
             {% csrf_token %}
+            {{ comment_form.media }}
             {{comment_form|crispy}}
             <button type="submit" style="background-color:#FFA500; color:white" class="btn btn-secondary px-4 me-md-2 mt-2">Save</button>
           </form>

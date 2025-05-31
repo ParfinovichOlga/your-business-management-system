@@ -12,3 +12,4 @@ django-formset==1.6.1
 celery==5.4.0
 python-dotenv==1.0.1
 redis==5.2.1
+django-ckeditor-5==0.2.18
