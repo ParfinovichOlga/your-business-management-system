@@ -11,44 +11,42 @@
   <header>
     <div class="px-3 py-2 pb-2 text-bg-dark border-bottom">
       <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-end">
           {% if request.user.is_authenticated %}
-          <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
-            <li>
-              <a href="{% url "home" %}" class="nav-link text-secondary">
-                <img src="{% static "images/pencil-square.svg" %}" class="bi d-block mx-auto mb-1" width="24" height="24">
-                Home
-              </a>
-            </li>
-            <li>
-              <a href="{% url "evaluation" %}" class="nav-link text-secondary">
-                <img src="{% static "images/pencil-square.svg" %}" class="bi d-block mx-auto mb-1" width="24" height="24">
-                Evaluations
-              </a>
-            </li>
-
-          </ul>
-          <div class="text-end">
-            <button type="button" class="btn btn-outline-light me-2">
-              <a href="{% url "set_up_meeting"%}" class="nav-link text-whitbe">Set up meeting</a>
-            </button>
-            <button type="button" class="btn btn-outline-light me-2">
-              <a href="{% url "update_profile"%}" class="nav-link text-whitbe">Profile</a>
-            </button>
-            <button type="button" class="btn btn-warning">
-              <a href="{% url "logout"%}" class="nav-link text-white">Logout</a>
-            </button>
-            {% else%}
+            <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+              <li>
+                <a href="{% url "home" %}" class="nav-link text-secondary">
+                  <img src="{% static "images/house.svg" %}" class="bi d-block mx-auto mb-1" width="24" height="24" style="color:white">
+                  Home
+                </a>
+              </li>
+              {% if not request.user.is_superuser %}
+              <li>
+                <a href="{% url "evaluation" %}" class="nav-link text-secondary">
+                  <img src="{% static "images/award.svg" %}" class="bi d-block mx-auto mb-1" width="24" height="24">
+                  Evaluations
+                </a>
+              </li>
+              {% endif %}
+            </ul>
             <div class="text-end">
-
-            <button type="button" class="btn btn-outline-light me-2">
-              <a href="{% url "login"%}" class="nav-link text-whitbe">Login</a>
-            </button>
-            <button type="button" class="btn btn-warning">
-              <a href="{% url "register"%}" class="nav-link text-white">Sign-up</a>
-            </button>
-
-
+              <button type="button" class="btn btn-outline-light me-2">
+                <a href="{% url "set_up_meeting"%}" class="nav-link text-whitbe">Set Up Meeting</a>
+              </button>
+              <button type="button" class="btn btn-outline-light me-2">
+                <a href="{% url "update_profile"%}" class="nav-link text-whitbe">Profile</a>
+              </button>
+              <button type="button" class="btn btn-warning">
+                <a href="{% url "logout"%}" class="nav-link text-white">Logout</a>
+              </button>
+            {% else%}
+              <div class="text-end">
+              <button type="button" class="btn btn-outline-light me-2">
+                <a href="{% url "login"%}" class="nav-link text-whitbe">Login</a>
+              </button>
+              <button type="button" class="btn btn-warning">
+                <a href="{% url "register"%}" class="nav-link text-white">Sign-up</a>
+              </button>
             {% endif %}
           </div>
         </div>

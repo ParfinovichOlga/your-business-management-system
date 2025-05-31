@@ -73,7 +73,8 @@ def sellect_all_available_employee_tasks(user: User) -> QuerySet:
             user=user.team.manager, assign_to=None
             ).all().order_by('deadline')
     except Exception:
-        available_tasks = Task.objects.all().order_by('deadline')
+        available_tasks = Task.objects.filter(
+            assign_to=None).all().order_by('deadline')
     return available_tasks
 
 

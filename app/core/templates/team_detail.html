@@ -4,7 +4,7 @@
 
 {% block content %}
 {% if team and form %}
-<div class="container mt-3">
+<div class="container mt-5">
     <div class="row">
         <div class="col-lg-4">
             <div class="card" style="width: 18rem;">
@@ -22,7 +22,7 @@
                 <div class="card-body">
                     <form action="{% url 'delete_team' team.id%}" method="DELETE">
                         {% csrf_token %}
-                        <button type="submit" style="background-color: rgb(249, 195, 133); color:white" class="btn btn-secondary btn-lg px-4 me-md-2 mt-2">
+                        <button type="submit" style="background-color:#FFA500; color:white" class="btn btn-secondary px-4 me-md-2 mt-2">
                             Delete
                         </button>
                     </form>
@@ -34,7 +34,7 @@
             <form action="{% url 'team_detail' team.id%}" method="POST">
                 {% csrf_token %}
                 {{form|crispy}}
-                <button type="submit" style="background-color: rgb(249, 195, 133); color:white" class="btn btn-secondary btn-lg px-4 me-md-2 mt-2">Update</button>
+                <button type="submit" style="background-color:#FFA500; color:white" class="btn btn-secondary px-4 me-md-2 mt-2">Update</button>
             </form>
         </div>
     </div>

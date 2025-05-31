@@ -5,14 +5,12 @@
 
 <header
   class="masthead"
-  style="background-image: url('../static/assets/img/register-bg.jpg')"
 >
-  <div class="container position-relative px-4 px-lg-5">
+  <div class="container position-relative px-4 px-lg-5 mt-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
       <div class="col-md-10 col-lg-8 col-xl-7">
         <div class="page-heading">
           <h1>My profile</h1>
-
         </div>
       </div>
     </div>
@@ -20,7 +18,7 @@
 </header>
 
 <main class="mb-4">
-  <div class="container">
+  <div class="container mt-5">
     <div class="row">
       <div class="col-lg-6">
         <h2>Update profile</h2>
@@ -41,13 +39,11 @@
             <label for="exampleInputPassword1" class="form-label">Password</label>
             <input name="password" type="password" class="form-control" id="exampleInputPassword1">
           </div>
-
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
         <p class="mt-3">
           <a href="{% url "delete_profile"%}"> Delete profile </a>
         </p>
-
     </div>
 
     <div class="col-lg-6 px-5">

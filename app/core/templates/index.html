@@ -21,9 +21,26 @@
 {% elif request.user.is_authenticated %}
   {% include "includes/employee.html" %}
 
+{% else %}
+<div class="container">
+  <div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 text-body-emphasis">Welcome!</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4"> Login or sign up to join our Business Management System!
+      </p>
+    </div>
+  </div>
 
+  <div class="bg-dark text-secondary px-4 py-5 text-center"  style="background-image: url('{% static "images/start.jpg"%}')"
+  >
+    <div class="py-5">
+      <h1 class="display-5 fw-bold text-white"></h1>
+      <div class="col-lg-6 mx-auto">
+        <p class="fs-5 mb-4">
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endif %}
-
-
-
 {% endblock%}

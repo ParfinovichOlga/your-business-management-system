@@ -1,12 +1,12 @@
 {%load crispy_forms_tags%}
-<div class="container">
+<div class="container mt-5">
     <div class="row">
         <div class="col-lg-3">
             <h2> Create new task </h2>
             <form action="{% url "create_task" %}" method="POST">
                 {% csrf_token %}
                 {{task_form|crispy}}
-                <button type="submit" style="background-color: rgb(249, 195, 133); color:white" class="btn btn-secondary btn-lg px-4 me-md-2 mt-2">Create</button>
+                <button type="submit" style="background-color:#FFA500; color:white" class="btn btn-secondary px-4 me-md-2 mt-2">Create</button>
             </form>
         </div>
         <div class="col-lg-5">

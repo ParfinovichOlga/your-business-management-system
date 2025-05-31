@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .services import (
@@ -160,7 +161,7 @@ class MeetingView(LoginRequiredMixin, View):
         form = MeetingForm()
         context = {
             'form': form,
-            'meetings': request.user.created_meetings.all().order_by('date')
+            'meetings': request.user.created_meetings.filter(date__gte=timezone.now()).all().order_by('date')
         }
         return render(request, 'meeting.html', context)
 

@@ -10,16 +10,16 @@
       {% endfor%}
     {% endif %}
     <div class="row">
-      <div class="col-lg-6">
+      <div class="col-lg-6 mt-5 pt-4">
         <h5 class="card-title">Set up new meeting</h5>
         <form action="{% url 'set_up_meeting' %}" method="POST">
             {% csrf_token %}
             {{form|crispy}}
-            <button type="submit" style="background-color: rgb(249, 195, 133); color:white" class="btn btn-secondary btn-lg px-4 me-md-2 mt-2">Create</button>
+            <button type="submit" style="background-color:#FFA500; color:white" class="btn btn-secondary px-4 me-md-2 mt-2">Create</button>
         </form>
       </div>
       <div class="col-lg-6">
-        <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
+        <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center mt-5 mb-5">
           <div class="list-group">
             <h5 class="card-title">Organized by me</h5>
             {% for meeting in meetings %}

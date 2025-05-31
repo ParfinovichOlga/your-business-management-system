@@ -1,35 +1,40 @@
 {%load static%}
 
-<div class="container">
+<div class="container mt-2">
     <div class="container">
-        <h2 class="mb-4"> Plan for today </h2>
+        {%  if today_tasks|length or today_meetings|length %}
+        <h4 class="mb-4" style="text-align: center"> <img src="{% static "images/bell-fill.svg" %}"/> today </h4>
         <div class="row">
+            {% if today_tasks|length%}
             <div class="col-lg-6">
+
                 <h6> Tasks </h6>
-                {% if today_tasks|length%}
                 <ul>
                     {% for t in today_tasks%}
                         <li> {{t.date|date:"H:i"}} {{t.description}} </li>
                     {%endfor%}
                 </ul>
-                {% endif %}
             </div>
+            {% endif %}
+            {% if today_meetings %}
             <div class="col-lg-6">
                 <h6> Meetings </h6>
-                {% if today_meetings %}
                 <ul>
                     {% for m in today_meetings%}
                     <li> {{m.date|date:"H:i"}} {{m.title}} </li>
                     {%endfor%}
                 </ul>
-                {% endif %}
             </div>
+            {% endif %}
         </div>
+        {% endif %}
     </div>
 
     <div class="container">
-        <h2 class="mb-4"> Plan for month </h2>
+        {%  if month_tasks|length or month_meetings|length %}
+        <h4 class="mb-4" style="text-align: center"> <img src="{% static "images/calendar2-check.svg" %}"/> month </h4>
         <div class="row">
+            {% if month_tasks|length %}
             <div class="col-lg-6">
                 <table class="table">
                     <thead>
@@ -39,17 +44,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if month_tasks|length %}
                         {% for task in month_tasks%}
                         <tr>
                             <td>{{task.deadline|date:"d M Y"}}</td>
                             <td>{{task.description}}</td>
                         </tr>
                         {% endfor%}
-                        {% endif %}
                     </tbody>
                 </table>
             </div>
+            {% endif %}
+            {% if month_meetings|length %}
             <div class="col-lg-6">
                 <table class="table">
                     <thead>
@@ -59,17 +64,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if month_meetings|length %}
+
                             {% for m in month_meetings%}
                             <tr>
                                 <td>{{m.date|date:"d.m.Y H:i"}}</td>
                                 <td>{{m.title}}</td>
                             </tr>
                             {% endfor%}
-                        {% endif %}
                     </tbody>
                 </table>
             </div>
+            {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>
