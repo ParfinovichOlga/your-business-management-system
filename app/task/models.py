@@ -4,6 +4,7 @@ Database Task model.
 
 from django.db import models
 from django.conf import settings
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 class Task(models.Model):
@@ -40,7 +41,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    text = models.TextField()
+    text = CKEditor5Field('Text', config_name='extends')
     date = models.DateField(auto_now=True)
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE,

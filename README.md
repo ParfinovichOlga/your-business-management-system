@@ -16,6 +16,7 @@ App for management business system.
     - services for getting template context
     - tasks.py for asynchronous celery tasks
     - permissions for API
+    - forms
     - urls for frontend
     - admin.py for configuring Admin panel
     - tests for services.py
